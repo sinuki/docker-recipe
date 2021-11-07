@@ -1,0 +1,44 @@
+version: '2.2'
+services:
+  es01-672:
+    image: elasticsearch:6.7.2
+    container_name: es01-672
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      - node.name=es01-672
+      - cluster.name=es-docker-cluster
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - TZ=Asia/Seoul
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+  kibana:
+    image: kibana:6.7.2
+    container_name: kibana-672
+    ports:
+      - 5601:5601
+    environment:
+      - ELASTICSEARCH_HOSTS=http://es01-672:9200
+      - ELASTICSEARCH_URL=http://es01-672:9200
+      - TZ=Asia/Seoul
+    depends_on:
+      - es01-672
+    networks:
+      - elastic
+volumes:
+  data01:
+    driver: local
+  data02:
+    driver: local
+networks:
+  elastic:
+    driver: bridge
